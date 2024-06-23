@@ -19,6 +19,11 @@ public class HtmlViewer extends BorderPane {
     private final WebView webView;
     private final TextField searchTextField;
     private final JavascriptBridge javascriptBridge;
+    private final Button searchButton;
+    private final Button selectPreviousSearchResultButton;
+    private final Button selectNextSearchResultButton;
+    private final Button resetButton;
+
     private int selectedSearchResultIndex;
 
     public HtmlViewer(URL url) {
@@ -35,18 +40,18 @@ public class HtmlViewer extends BorderPane {
 
         javascriptBridge = new JavascriptBridge(webView);
 
-        Button searchButton = new Button("Search");
+        searchButton = new Button("Search");
         searchButton.setMinWidth(0);
         searchButton.setMinHeight(0);
         searchButton.setOnAction(e -> onSearchButtonClick());
 
-        Button selectPreviousSearchResultButton = new Button("/\\");
+        selectPreviousSearchResultButton = new Button("/\\");
         selectPreviousSearchResultButton.setOnAction(e -> onSelectPreviousSearchResultButtonClick());
 
-        Button selectNextSearchResultButton = new Button("\\/");
+        selectNextSearchResultButton = new Button("\\/");
         selectNextSearchResultButton.setOnAction(e -> onSelectNextSearchResultButtonClick());
 
-        Button resetButton = new Button("Reset");
+        resetButton = new Button("Reset");
         resetButton.setMinWidth(0);
         resetButton.setMinHeight(0);
         resetButton.setOnAction(e -> onResetButtonClick());
@@ -83,6 +88,7 @@ public class HtmlViewer extends BorderPane {
 
     public void loadHtmlByUrl(URL url) {
         webView.getEngine().load(url.toExternalForm());
+        selectedSearchResultIndex = -1;
     }
 
     private void onSearchShortcutClick() {
