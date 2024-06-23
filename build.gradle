@@ -1,0 +1,128 @@
+//file:noinspection SpellCheckingInspection
+
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.0.13'
+    id 'maven-publish'
+    id 'signing'
+}
+
+group 'com.wedasoft'
+version '1.0.0'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+ext {
+    junitVersion = '5.10.0'
+    assertjVersion = '3.24.2'
+
+    pomGroupId = group
+    pomVersion = version
+    pomArtifactId = "wedasoftfxcustomnodes"
+    pomArtifactName = "WedasoftFxCustomNodes"
+
+    javaFxVersion = "17.0.8"
+    jdkCompileVersion = 17
+}
+
+dependencies {
+    implementation("org.junit.jupiter:junit-jupiter-api:${junitVersion}")
+    implementation("org.junit.jupiter:junit-jupiter-engine:${junitVersion}")
+    testImplementation("org.assertj:assertj-core:${assertjVersion}")
+
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.32'
+    testCompileOnly 'org.projectlombok:lombok:1.18.32'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.32'
+}
+
+javafx {
+    version = "${javaFxVersion}"
+    modules = ['javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.web']
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.release = Integer.parseInt("${jdkCompileVersion}") //17
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//noinspection GroovyUnusedAssignment
+sourceCompatibility = "${jdkCompileVersion}"
+//noinspection GroovyUnusedAssignment
+targetCompatibility = "${jdkCompileVersion}"
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of("${jdkCompileVersion}"))
+    }
+}
+
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
+
+/* publish to Maven Central (with maven publish plugin) */
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId = "${pomGroupId}"
+            artifactId = "${pomArtifactId}"
+            version = "${pomVersion}"
+            from components.java
+
+            pom {
+                name = "${pomArtifactName}"
+                description = "A library which provides custom JavaFX nodes, enhancing your UI with advanced features and seamless functionality for a superior user experience."
+                url = "https://github.com/davidweber411/WedasoftFxCustomNodes"
+                inceptionYear = '2023'
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'davidweber411'
+                        name = 'David Weber'
+                        email = 'weberdavid91@gmail.com'
+                    }
+                }
+                scm {
+                    url = "scm:git:https://github.com/davidweber411/WedasoftFxCustomNodes.git"
+                    connection = 'scm:git:git:github.com/davidweber411/WedasoftFxCustomNodes.git'
+                    developerConnection = 'scm:git:ssh://github.com:davidweber411/WedasoftFxCustomNodes.git'
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "OSSRH"
+            // url = "https://s01.oss.sonatype.org/content/repositories/snapshots/" // repo for snapshots
+            url = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/" // creates staging repo in nexus
+            credentials {
+                username = System.getenv("OSSRH_TOKEN_USERNAME") // echo %OSSRH_TOKEN_USERNAME%
+                password = System.getenv("OSSRH_TOKEN_PASSWORD") // echo %OSSRH_TOKEN_PASSWORD%
+            }
+        }
+    }
+}
+// comment out signing for publish to maven local
+signing {
+    // By default the Signing Plugin uses a Java-based implementation of PGP for signing. This implementation cannot use the gpg-agent program for managing private keys, though. If you want to use the gpg-agent, you can change the signatory implementation used by the Signing Plugin:
+    useGpgCmd()
+    sign publishing.publications.mavenJava
+}
