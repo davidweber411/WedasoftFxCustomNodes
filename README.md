@@ -27,7 +27,7 @@ superior user experience.
     <dependency>
       <groupId>com.wedasoft</groupId>
       <artifactId>wedasoftfxcustomnodes</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
 
 ##### Gradle
@@ -36,7 +36,7 @@ superior user experience.
       mavenCentral()
     }
     dependencies {
-      implementation("com.wedasoft:wedasoftfxcustomnodes:1.0.0")
+      implementation("com.wedasoft:wedasoftfxcustomnodes:1.1.0")
     }
 
 ### Documentation
