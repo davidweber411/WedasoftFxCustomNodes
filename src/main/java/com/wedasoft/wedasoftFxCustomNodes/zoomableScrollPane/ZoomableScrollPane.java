@@ -7,19 +7,25 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.VBox;
+import lombok.Getter;
 
 public class ZoomableScrollPane extends ScrollPane {
-    private double scaleValue = 1;
 
-    @SuppressWarnings("FieldCanBeLocal")
+    @Getter
+    private static final double initialScaleValue = 1;
+    @Getter
+    private double scaleValue = initialScaleValue;
+
+    @Getter
     private final double zoomIntensity = 0.1;
-    private final Node target;
+    @Getter
+    private final Node contentNode;
     private final Node zoomNode;
 
-    public ZoomableScrollPane(Node target) {
+    public ZoomableScrollPane(Node contentNode) {
         super();
-        this.target = target;
-        this.zoomNode = new Group(target);
+        this.contentNode = contentNode;
+        this.zoomNode = new Group(contentNode);
         setContent(outerNode(zoomNode));
 
         // setPannable(true);
@@ -49,8 +55,14 @@ public class ZoomableScrollPane extends ScrollPane {
     }
 
     private void updateScale() {
-        target.setScaleX(scaleValue);
-        target.setScaleY(scaleValue);
+        contentNode.setScaleX(scaleValue);
+        contentNode.setScaleY(scaleValue);
+    }
+
+    public void resetZoom() {
+        scaleValue = initialScaleValue;
+        contentNode.setScaleX(initialScaleValue);
+        contentNode.setScaleY(initialScaleValue);
     }
 
     public void zoomIn() {
@@ -76,10 +88,10 @@ public class ZoomableScrollPane extends ScrollPane {
         this.layout(); // refresh ScrollPane scroll positions & target bounds
 
         // convert target coordinates to zoomTarget coordinates
-        Point2D posInZoomTarget = target.parentToLocal(zoomNode.parentToLocal(mousePoint));
+        Point2D posInZoomTarget = contentNode.parentToLocal(zoomNode.parentToLocal(mousePoint));
 
         // calculate adjustment of scroll position (pixels)
-        Point2D adjustment = target.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+        Point2D adjustment = contentNode.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
 
         // convert back to [0, 1] range
         // (too large/small values are automatically corrected by ScrollPane)
